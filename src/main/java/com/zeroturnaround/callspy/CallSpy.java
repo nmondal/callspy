@@ -46,6 +46,14 @@ public class CallSpy implements ClassFileTransformer {
       return false;
   }
 
+  private void defaultTransform(CtMethod method, String className) throws Exception {
+      method.insertBefore(" { " +
+              "Stack.push();" +
+              "Stack.log(\"" + className + "." + method.getName() + "\"); " +
+              "}");
+      method.insertAfter("{ Stack.pop(); }", true);
+  }
+
   @Override
   public byte[] transform(//region other parameters
                           ClassLoader loader,
@@ -78,11 +86,7 @@ public class CallSpy implements ClassFileTransformer {
       CtMethod[] declaredMethods = ct.getDeclaredMethods();
       for (CtMethod method : declaredMethods) {
         //region instrument method
-          method.insertBefore(" { " +
-                  "Stack.push();" +
-                  "Stack.log(\"" + className + "." + method.getName() + "\"); " +
-                  "}");
-          method.insertAfter("{ Stack.pop(); }", true);
+        defaultTransform(method,className);
         //endregion
       }
 
