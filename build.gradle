@@ -9,8 +9,13 @@ repositories {
 }
 
 dependencies {
-    compile 'org.javassist:javassist:3.18.1-GA'
+    compile 'org.javassist:javassist:3.22.0-CR1'
     testCompile "junit:junit:4.11"
+}
+
+task getDeps(type: Copy) {
+    from configurations.runtime
+    into 'build/libs/'
 }
 
 compileJava {
@@ -38,6 +43,10 @@ jar {
                 'Built-JDK': System.getProperty('java.version')
         )
     }
+}
+
+jar.doLast {
+    tasks.getDeps.execute()
 }
 
 task wrapper(type: Wrapper) {

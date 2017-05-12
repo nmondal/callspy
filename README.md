@@ -7,4 +7,6 @@ Build:
 gradlew jar
 
 Run:
-java -DXbootclasspath/p:javassist.jar:callspy.jar -javaagent:callspy.jar YourClazz
+```
+java -DXbootclasspath/p:build/libs/javassist-3.22.0-CR1.jar:build/libs/callspy-0.1.jar -javaagent:build/libs/callspy-0.1.jar Test
+```

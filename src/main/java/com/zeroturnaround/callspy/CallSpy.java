@@ -8,8 +8,44 @@ import java.io.ByteArrayInputStream;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 public class CallSpy implements ClassFileTransformer {
+
+  private final Set<Pattern> filters;
+
+  CallSpy(Set<String> strings) {
+     filters = new HashSet<>();
+     for( String p : strings) {
+       Pattern pattern = Pattern.compile(p,Pattern.DOTALL);
+       filters.add(pattern);
+     }
+  }
+
+  private boolean matches(String className){
+      // never do java.* ever
+      if ( className.startsWith("java/") ||
+              className.startsWith("javax/") ||
+              className.startsWith("sun/") ){
+          return false;
+      }
+
+      // do all
+      if (filters.isEmpty()) {
+          return true;
+      }
+      // if not, then do some
+      for (Pattern p : filters) {
+          if (p.matcher(className).matches()) {
+              return true;
+          }
+      }
+      // nothing, so return
+      return false;
+  }
+
   @Override
   public byte[] transform(//region other parameters
                           ClassLoader loader,
@@ -32,11 +68,10 @@ public class CallSpy implements ClassFileTransformer {
     //region filter out non-application classes
     // Application filter. Can be externalized into a property file.
     // For instance, profilers use blacklist/whitelist to configure this kind of filters
-    if (!className.startsWith("com/zt")) {
+    if (!matches(className)) {
       return classfileBuffer;
     }
     //endregion
-
     try {
       CtClass ct = cp.makeClass(new ByteArrayInputStream(classfileBuffer));
 
