@@ -49,7 +49,7 @@ public class CallSpy implements ClassFileTransformer {
   private void defaultTransform(CtMethod method, String className) throws Exception {
       method.insertBefore(" { " +
               "Stack.push();" +
-              "Stack.log(\"" + className + "." + method.getName() + "\"); " +
+              "Stack.log(\"" + className + "\",  \"" + method.getName() + "\", $args );" +
               "}");
       method.insertAfter("{ Stack.pop(); }", true);
   }

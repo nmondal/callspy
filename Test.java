@@ -1,11 +1,11 @@
 public class Test{
 
-    public void boom(){
-        System.out.println("Hello World!");
+    public void boom(String greet){
+        System.out.printf("Hello World : %s\n", greet);
     }
 
     public static void main(String[] args){
         Test t = new Test();
-        t.boom();
+        t.boom("Boom!");
     }
 }
