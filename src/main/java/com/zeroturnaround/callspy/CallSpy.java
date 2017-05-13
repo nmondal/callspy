@@ -46,13 +46,14 @@ public class CallSpy implements ClassFileTransformer {
       return false;
   }
 
-  private void defaultTransform(CtMethod method, String className) throws Exception {
-      method.insertBefore(" { " +
-              "Stack.push();" +
-              "Stack.log(\"" + className + "\",  \"" + method.getName() + "\", $args );" +
-              "}");
-      method.insertAfter("{ Stack.pop(); }", true);
-  }
+    private void hookTransform(CtMethod method, String className) throws Exception {
+      boolean isVoid = ( method.getReturnType() == CtClass.voidType );
+      String body = (isVoid) ? "" : "return " ;
+      body += Interceptor.class.getName() + ".hook(\"" + className + "\", \"" + method.getName() + "\", $args );" ;
+      body += (isVoid) ? "return;" : "" ;
+      method.insertBefore(body);
+      method.insertAfter("",true);
+    }
 
   @Override
   public byte[] transform(//region other parameters
@@ -86,7 +87,7 @@ public class CallSpy implements ClassFileTransformer {
       CtMethod[] declaredMethods = ct.getDeclaredMethods();
       for (CtMethod method : declaredMethods) {
         //region instrument method
-        defaultTransform(method,className);
+        hookTransform(method,className);
         //endregion
       }
 

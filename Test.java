@@ -5,6 +5,7 @@ public class Test{
     }
 
     public static void main(String[] args){
+        // these won't even fire...
         Test t = new Test();
         t.boom("Boom!");
     }
